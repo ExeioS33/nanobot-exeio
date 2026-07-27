@@ -1,0 +1,26 @@
+{{ ansible_managed | comment }}
+# Layers on top of the repo's own docker-compose.yml (never edited directly —
+# see ansible/README.md for why). Compose merges this automatically when both
+# files are passed together, which the nanobot role's tasks always do.
+#
+# This only adds what the base file is missing for a real deployment:
+# env_file passthrough (so ${VAR} references in config.json actually resolve
+# inside the container) and, when publicly exposed, external port binds.
+
+services:
+  nanobot-gateway:
+    env_file:
+      - .env
+{% if nanobot_expose_webui_publicly %}
+    ports:
+      - "127.0.0.1:18790:18790" # health route stays loopback-only even when public — see README
+      - "0.0.0.0:8765:8765"
+{% endif %}
+
+  nanobot-api:
+    env_file:
+      - .env
+{% if nanobot_expose_webui_publicly %}
+    ports:
+      - "127.0.0.1:8900:8900" # switch to 0.0.0.0 only behind the caddy role / your own reverse proxy
+{% endif %}

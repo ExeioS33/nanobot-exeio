@@ -1,0 +1,15 @@
+---
+# Fast path for config-only changes: config.json/.env/override edits don't
+# need a full rebuild, just a container restart to pick up the new mount
+# content and environment — matches docs/deployment.md: "Restart the deployed
+# process after editing config.json."
+- name: Restart nanobot services
+  community.docker.docker_compose_v2:
+    project_src: "{{ nanobot_deploy_dir }}"
+    files:
+      - docker-compose.yml
+      - docker-compose.override.yml
+    state: restarted
+    services: "{{ nanobot_services }}"
+  become: true
+  become_user: "{{ ansible_user }}"
