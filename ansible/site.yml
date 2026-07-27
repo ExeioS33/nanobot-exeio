@@ -1,0 +1,19 @@
+---
+- name: Deploy nanobot-exeio to the VPS
+  hosts: all
+  become: true
+
+  pre_tasks:
+    - name: Gather only the facts the roles below actually need
+      ansible.builtin.setup:
+        gather_subset:
+          - "!all"
+          - distribution
+          - architecture
+
+  roles:
+    - role: firewall
+    - role: docker
+    - role: nanobot
+    - role: caddy
+      when: nanobot_expose_webui_publicly and nanobot_domain | length > 0

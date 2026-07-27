@@ -1,0 +1,52 @@
+---
+# Non-secret configuration. Real API keys/tokens live in vault.yml (encrypted),
+# never here — this file is meant to be readable/diffable in plain git history.
+
+# --- Source ---
+nanobot_repo_url: "https://github.com/ExeioS33/nanobot-exeio.git"
+nanobot_repo_ref: "main"                # branch/tag to deploy
+nanobot_deploy_dir: "/opt/nanobot"      # where the repo is checked out on the VPS
+
+# --- Data dir (bind-mounted into the container as /home/nanobot/.nanobot) ---
+# The container's built-in user is UID 1000 (see Dockerfile). This directory
+# is chowned to 1000:1000 by the nanobot role regardless of which host user
+# owns the checkout, matching the permission fix documented in
+# docs/deployment.md ("sudo chown -R 1000:1000 ~/.nanobot").
+nanobot_data_dir: "/home/{{ ansible_user }}/.nanobot"
+
+# --- Which channels to bake into the image build ---
+# Matches config.json's currently-enabled channel(s). Add more comma-separated
+# names here (and enable them in config.json.j2 / vault.yml) as needed —
+# see docs/chat-apps.md for the full channel list.
+nanobot_channels: "telegram"
+
+# --- Agent identity (mirrors ~/.nanobot/config.json's agents.defaults) ---
+nanobot_model: "anthropic/claude-opus-4-5"
+nanobot_timezone: "UTC"
+nanobot_bot_name: "Exeio"
+nanobot_bot_icon: "👽"
+
+# --- Telegram channel ---
+nanobot_telegram_enabled: true
+nanobot_telegram_allow_from:
+  - "7928219667"
+
+# Which docker-compose.yml services to bring up. Add "nanobot-api" if you want
+# the OpenAI-compatible /v1 server (port 8900) running too — set
+# vault_api_server_key first, since that API has no auth key in the reference
+# config this project was built from.
+nanobot_services:
+  - nanobot-gateway
+
+# --- Network exposure ---
+# SAFE BY DEFAULT: stays loopback-only until you deliberately flip this.
+# When true: gateway/websocket bind to 0.0.0.0, the firewall role opens 443,
+# and the caddy role (if nanobot_domain is set) fronts the WebUI with TLS.
+# When false: everything stays on 127.0.0.1 — reachable only via SSH tunnel
+# (`ssh -L 8765:127.0.0.1:8765 -L 18790:127.0.0.1:18790 deploy@<vps>`).
+nanobot_expose_webui_publicly: false
+
+# Only used when nanobot_expose_webui_publicly is true. Leave blank to skip
+# the caddy role entirely and expose raw ports instead (not recommended for
+# anything beyond quick testing).
+nanobot_domain: ""
