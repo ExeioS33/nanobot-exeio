@@ -1,0 +1,36 @@
+---
+# Minimal ufw baseline. The gateway health port (18790), WebSocket/WebUI
+# (8765), and API (8900) are deliberately never opened here — they're either
+# loopback-only (default) or fronted by the caddy role (443), matching the
+# port-planning table in docs/deployment.md.
+
+- name: Install ufw
+  ansible.builtin.apt:
+    name: ufw
+    state: present
+
+- name: Allow SSH
+  community.general.ufw:
+    rule: allow
+    port: "22"
+    proto: tcp
+
+- name: Allow HTTP/HTTPS (needed for Let's Encrypt + public traffic)
+  community.general.ufw:
+    rule: allow
+    port: "{{ item }}"
+    proto: tcp
+  loop: ["80", "443"]
+  when: nanobot_expose_webui_publicly and nanobot_domain | length > 0
+
+- name: Set default deny incoming / allow outgoing
+  community.general.ufw:
+    direction: "{{ item.direction }}"
+    policy: "{{ item.policy }}"
+  loop:
+    - { direction: incoming, policy: deny }
+    - { direction: outgoing, policy: allow }
+
+- name: Enable ufw
+  community.general.ufw:
+    state: enabled
