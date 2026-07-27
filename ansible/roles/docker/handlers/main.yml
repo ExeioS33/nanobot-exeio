@@ -1,0 +1,7 @@
+---
+# Group membership changes (adding the deploy user to `docker`) only take
+# effect on a fresh login session — reset the connection so later tasks in
+# this same play run with the new group already active, instead of needing a
+# second playbook run.
+- name: Reset ssh connection
+  ansible.builtin.meta: reset_connection
