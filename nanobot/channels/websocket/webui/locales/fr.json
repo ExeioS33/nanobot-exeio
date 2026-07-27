@@ -1,5 +1,5 @@
 {
-  "description": "Utilisez nanobot depuis l’espace de travail du navigateur local.",
+  "description": "Utilisez Exeio depuis l’espace de travail du navigateur local.",
   "requirements": "Passerelle locale et jeton WebSocket",
   "setup": {
     "docsLabel": "Ouvrir le guide WebSocket",

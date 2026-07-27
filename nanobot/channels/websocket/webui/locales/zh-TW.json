@@ -1,5 +1,5 @@
 {
-  "description": "透過本機瀏覽器工作台使用 nanobot。",
+  "description": "透過本機瀏覽器工作台使用 Exeio。",
   "requirements": "本機閘道和 WebSocket 權杖",
   "setup": {
     "docsLabel": "開啟 WebSocket 設定指南",

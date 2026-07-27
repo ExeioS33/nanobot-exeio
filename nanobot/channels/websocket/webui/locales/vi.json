@@ -1,5 +1,5 @@
 {
-  "description": "Sử dụng nanobot từ không gian làm việc trên trình duyệt cục bộ.",
+  "description": "Sử dụng Exeio từ không gian làm việc trên trình duyệt cục bộ.",
   "requirements": "Gateway cục bộ và token WebSocket",
   "setup": {
     "docsLabel": "Mở hướng dẫn WebSocket",

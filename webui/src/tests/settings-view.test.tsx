@@ -569,7 +569,7 @@ describe("SettingsView Apps catalog", () => {
 
     renderSettingsView({ initialSection: "apps" });
 
-    expect(await screen.findByText("Add tools to nanobot, then @ them in chat.")).toBeInTheDocument();
+    expect(await screen.findByText("Add tools to Exeio, then @ them in chat.")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Ready" })).toHaveAttribute("aria-pressed", "false");
     expect(screen.getByRole("button", { name: "Apps" })).toHaveAttribute("aria-pressed", "true");
     expect(screen.getByRole("button", { name: "Integrations" })).toBeInTheDocument();
@@ -650,11 +650,11 @@ describe("SettingsView Apps catalog", () => {
     const matrixRow = await screen.findByRole("button", { name: "View Matrix settings" });
     expect(matrixRow).toHaveAttribute("aria-pressed", "true");
     expect(screen.getAllByText("Matrix")).toHaveLength(2);
-    expect(screen.getAllByText("Use nanobot from Matrix rooms.")).toHaveLength(2);
+    expect(screen.getAllByText("Use Exeio from Matrix rooms.")).toHaveLength(2);
     expect(screen.queryByText(/Enabling Nanobot features may install Python packages/)).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("switch", { name: "Matrix channel" }));
     expect(screen.getByRole("dialog", { name: "Install support for Matrix?" })).toBeInTheDocument();
-    expect(screen.getByText("nanobot will add what Matrix needs, then turn it on. Continue?")).toBeInTheDocument();
+    expect(screen.getByText("Exeio will add what Matrix needs, then turn it on. Continue?")).toBeInTheDocument();
     expect(fetchMock).not.toHaveBeenCalledWith(
       "/api/settings/nanobot-features/enable?name=matrix",
       expect.anything(),
@@ -673,7 +673,7 @@ describe("SettingsView Apps catalog", () => {
       expect(screen.getByRole("switch", { name: "Matrix channel" })).toHaveAttribute("aria-checked", "true"),
     );
     expect(screen.queryByText("Enabled channel 'matrix'")).not.toBeInTheDocument();
-    expect(screen.queryByText("Restart nanobot to apply updated channel support.")).not.toBeInTheDocument();
+    expect(screen.queryByText("Restart Exeio to apply updated channel support.")).not.toBeInTheDocument();
     expect(screen.getAllByText("On").length).toBeGreaterThan(0);
 
     expect(screen.getByLabelText("Homeserver")).toBeInTheDocument();
@@ -2540,7 +2540,7 @@ describe("SettingsView Apps catalog", () => {
 
     expect(
       screen.getByText(
-        "Complete sign-in in your browser. Nanobot usually finishes automatically; if it does not, paste the authorization code below.",
+        "Complete sign-in in your browser. Exeio usually finishes automatically; if it does not, paste the authorization code below.",
       ),
     ).toBeInTheDocument();
     const callbackInput = await screen.findByRole("textbox", {
