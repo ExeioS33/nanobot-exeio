@@ -1,11 +1,10 @@
 name: Sync upstream (HKUDS/nanobot)
 
-# Keeps docs/ and core (nanobot/** minus per-channel webui bundles, tests/,
-# Dockerfile, etc.) in sync with the real upstream project, while webui/**
-# and nanobot/channels/*/webui/** (the Exeio-branded frontend surface) are
-# never touched — restored to ours on every run regardless of what upstream
-# did to them. See ansible/README.md's sibling doc, or the PR this workflow
-# opens, for the design writeup.
+# Keeps `main` a near-pure mirror of the real upstream project (docs auto-merge,
+# everything else needs review before merging). `main` carries no Exeio-specific
+# branding of its own — that lives on `dev`, which merges `main` in separately
+# (see sync-main-to-dev.yml) and is where webui/** and
+# nanobot/channels/*/webui/** get protected from upstream changes.
 
 on:
   schedule:
@@ -72,23 +71,7 @@ jobs:
           echo "new_commits=$new_commits" >> "$GITHUB_OUTPUT"
           echo "Upstream is $new_commits commit(s) ahead."
 
-      - name: Detect new channel webui bundles (before merging)
-        id: newchannels
-        if: steps.existing.outputs.count == '0' && steps.drift.outputs.new_commits != '0'
-        run: |
-          ours="$(git ls-tree -d --name-only origin/main -- 'nanobot/channels/' | xargs -I{} basename {} | sort)"
-          theirs="$(git ls-tree -d --name-only upstream/main -- 'nanobot/channels/' | xargs -I{} basename {} | sort)"
-          new="$(comm -13 <(echo "$ours") <(echo "$theirs") || true)"
-          {
-            echo "new_channels<<EOF"
-            echo "$new"
-            echo "EOF"
-          } >> "$GITHUB_OUTPUT"
-          if [ -n "$new" ]; then
-            echo "::warning::Upstream added channel(s) with no local counterpart: $new"
-          fi
-
-      - name: Create sync branch, merge, restore Exeio-owned webui paths
+      - name: Create sync branch and merge upstream
         id: merge
         if: steps.existing.outputs.count == '0' && steps.drift.outputs.new_commits != '0'
         run: |
@@ -96,22 +79,14 @@ jobs:
           echo "branch=$branch" >> "$GITHUB_OUTPUT"
           git checkout -b "$branch" origin/main
 
-          # Merge everything from upstream first — including webui, which we
-          # deliberately undo in the next step. --no-commit so we can amend
-          # the tree before it becomes a real commit.
           if ! git merge --no-commit --no-ff upstream/main; then
             echo "has_conflicts=true" >> "$GITHUB_OUTPUT"
           else
             echo "has_conflicts=false" >> "$GITHUB_OUTPUT"
           fi
 
-          # Restore Exeio-owned paths to our version regardless of whether
-          # the merge conflicted on them or silently took upstream's — this
-          # is a hard exclusion, not "prefer ours on conflict".
-          git checkout origin/main -- webui/ ':(glob)nanobot/channels/*/webui/' 2>/dev/null || true
-
           git add -A
-          git commit -m "sync: merge upstream/main (webui/** preserved as Exeio's)" || true
+          git commit -m "sync: merge upstream/main" || true
 
       - name: Categorize the resulting diff (docs-only vs core)
         id: scope
@@ -141,27 +116,19 @@ jobs:
           && steps.scope.outputs.scope != 'empty'
         run: |
           scope="${{ steps.scope.outputs.scope }}"
-          new_channels="${{ steps.newchannels.outputs.new_channels }}"
           conflicts="${{ steps.merge.outputs.has_conflicts }}"
 
           title="sync: pull upstream/main ($scope)"
-          body="Automated sync from [HKUDS/nanobot](https://github.com/HKUDS/nanobot) — \`webui/**\` and \`nanobot/channels/*/webui/**\` are excluded and restored to this fork's own version, regardless of what upstream changed there.
+          body="Automated sync from [HKUDS/nanobot](https://github.com/HKUDS/nanobot) into \`main\`. Once merged, follow up by merging \`main\` into \`dev\` (see sync-main-to-dev.yml) to bring it into the Exeio product branch.
 
           **Scope detected:** \`$scope\`
-          **Merge conflicts on non-excluded paths:** \`$conflicts\`"
-
-          if [ -n "$new_channels" ]; then
-            body="$body
-
-          > [!WARNING]
-          > Upstream added a channel with no local \`nanobot/channels/*/webui/\` counterpart yet: **$new_channels**. Its webui bundle came through un-rebranded (there was nothing local to restore it to). Needs a manual one-time rebrand pass before this is safe to merge."
-          fi
+          **Merge conflicts:** \`$conflicts\`"
 
           if [ "$conflicts" = "true" ]; then
             body="$body
 
           > [!CAUTION]
-          > The merge had conflicts outside the excluded webui paths. Resolve them on the \`${{ steps.merge.outputs.branch }}\` branch before merging."
+          > The merge had conflicts. Resolve them on the \`${{ steps.merge.outputs.branch }}\` branch before merging."
           fi
 
           pr_url="$(gh pr create \
@@ -172,9 +139,7 @@ jobs:
             --label "$SYNC_LABEL")"
           echo "url=$pr_url" >> "$GITHUB_OUTPUT"
 
-          # Hard rule: a new-channel warning always forces manual review,
-          # even on an otherwise docs-only-shaped diff.
-          if [ "$scope" = "docs-only" ] && [ -z "$new_channels" ] && [ "$conflicts" != "true" ]; then
+          if [ "$scope" = "docs-only" ] && [ "$conflicts" != "true" ]; then
             echo "auto_merge=true" >> "$GITHUB_OUTPUT"
           else
             echo "auto_merge=false" >> "$GITHUB_OUTPUT"
