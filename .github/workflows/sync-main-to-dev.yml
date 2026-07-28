@@ -2,10 +2,11 @@ name: Sync main into dev
 
 # main is a near-pure mirror of upstream HKUDS/nanobot (see sync-upstream.yml).
 # dev is the actual Exeio product branch: main's history plus the Exeio
-# rebrand (webui/**, nanobot/channels/*/webui/**) and infra (ansible/**).
-# This workflow brings main's updates into dev while protecting those
-# dev-owned paths — restored to dev's version on every run regardless of
-# what the incoming merge did to them.
+# rebrand (webui/**, nanobot/channels/*/webui/**) and deployment tooling
+# (deployment/**, which includes the ansible IaC). This workflow brings
+# main's updates into dev while protecting those dev-owned paths — restored
+# to dev's version on every run regardless of what the incoming merge did
+# to them.
 #
 # Runs right after main moves (push trigger) so dev never falls more than
 # one sync behind.
@@ -27,7 +28,7 @@ env:
   SYNC_LABEL: sync-main-to-dev
   BOT_NAME: "github-actions[bot]"
   BOT_EMAIL: "41898282+github-actions[bot]@users.noreply.github.com"
-  DEV_OWNED_PATHS: "webui/ ansible/"
+  DEV_OWNED_PATHS: "webui/ deployment/"
 
 jobs:
   sync:
@@ -97,7 +98,7 @@ jobs:
           echo "branch=$branch" >> "$GITHUB_OUTPUT"
           git checkout -b "$branch" origin/dev
 
-          # Merge everything from main first — including webui/ansible paths,
+          # Merge everything from main first — including webui/deployment paths,
           # which we deliberately undo next. --no-commit so we can amend the
           # tree before it becomes a real commit.
           if ! git merge --no-commit --no-ff origin/main; then
@@ -113,7 +114,7 @@ jobs:
           git checkout origin/dev -- $DEV_OWNED_PATHS ':(glob)nanobot/channels/*/webui/' 2>/dev/null || true
 
           git add -A
-          git commit -m "sync: merge main into dev (webui/**, ansible/** preserved as dev's)" || true
+          git commit -m "sync: merge main into dev (webui/**, deployment/** preserved as dev's)" || true
 
       - name: Categorize the resulting diff (docs-only vs core)
         id: scope
@@ -147,7 +148,7 @@ jobs:
           conflicts="${{ steps.merge.outputs.has_conflicts }}"
 
           title="sync: merge main into dev ($scope)"
-          body="Automated merge of \`main\` into \`dev\` — \`webui/**\`, \`ansible/**\` and \`nanobot/channels/*/webui/**\` are excluded and restored to dev's own version, regardless of what main changed there.
+          body="Automated merge of \`main\` into \`dev\` — \`webui/**\`, \`deployment/**\` and \`nanobot/channels/*/webui/**\` are excluded and restored to dev's own version, regardless of what main changed there.
 
           **Scope detected:** \`$scope\`
           **Merge conflicts on non-excluded paths:** \`$conflicts\`"
