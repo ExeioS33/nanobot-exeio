@@ -1,0 +1,189 @@
+name: Sync upstream (HKUDS/nanobot)
+
+# Keeps docs/ and core (nanobot/** minus per-channel webui bundles, tests/,
+# Dockerfile, etc.) in sync with the real upstream project, while webui/**
+# and nanobot/channels/*/webui/** (the Exeio-branded frontend surface) are
+# never touched — restored to ours on every run regardless of what upstream
+# did to them. See ansible/README.md's sibling doc, or the PR this workflow
+# opens, for the design writeup.
+
+on:
+  schedule:
+    - cron: "0 6 * * 1" # weekly, Monday 06:00 UTC
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: sync-upstream
+  cancel-in-progress: false
+
+env:
+  UPSTREAM_URL: https://github.com/HKUDS/nanobot.git
+  SYNC_LABEL: sync-upstream
+  BOT_NAME: "github-actions[bot]"
+  BOT_EMAIL: "41898282+github-actions[bot]@users.noreply.github.com"
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure git identity
+        run: |
+          git config user.name "$BOT_NAME"
+          git config user.email "$BOT_EMAIL"
+
+      - name: Ensure the sync label exists
+        run: gh label create "$SYNC_LABEL" --color BFD4F2 --description "Automated upstream sync PR" --force
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Bail out if a sync PR is already open
+        id: existing
+        run: |
+          count="$(gh pr list --label "$SYNC_LABEL" --state open --json number --jq 'length')"
+          echo "count=$count" >> "$GITHUB_OUTPUT"
+          if [ "$count" != "0" ]; then
+            echo "::notice::An open sync PR already exists — skipping this run so we don't pile up duplicates."
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Fetch upstream
+        if: steps.existing.outputs.count == '0'
+        run: |
+          git remote add upstream "$UPSTREAM_URL"
+          git fetch upstream main
+
+      - name: Check for new upstream commits
+        id: drift
+        if: steps.existing.outputs.count == '0'
+        run: |
+          new_commits="$(git rev-list origin/main..upstream/main --count)"
+          echo "new_commits=$new_commits" >> "$GITHUB_OUTPUT"
+          echo "Upstream is $new_commits commit(s) ahead."
+
+      - name: Detect new channel webui bundles (before merging)
+        id: newchannels
+        if: steps.existing.outputs.count == '0' && steps.drift.outputs.new_commits != '0'
+        run: |
+          ours="$(git ls-tree -d --name-only origin/main -- 'nanobot/channels/' | xargs -I{} basename {} | sort)"
+          theirs="$(git ls-tree -d --name-only upstream/main -- 'nanobot/channels/' | xargs -I{} basename {} | sort)"
+          new="$(comm -13 <(echo "$ours") <(echo "$theirs") || true)"
+          {
+            echo "new_channels<<EOF"
+            echo "$new"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+          if [ -n "$new" ]; then
+            echo "::warning::Upstream added channel(s) with no local counterpart: $new"
+          fi
+
+      - name: Create sync branch, merge, restore Exeio-owned webui paths
+        id: merge
+        if: steps.existing.outputs.count == '0' && steps.drift.outputs.new_commits != '0'
+        run: |
+          branch="sync/upstream-$(date -u +%Y-%m-%d)"
+          echo "branch=$branch" >> "$GITHUB_OUTPUT"
+          git checkout -b "$branch" origin/main
+
+          # Merge everything from upstream first — including webui, which we
+          # deliberately undo in the next step. --no-commit so we can amend
+          # the tree before it becomes a real commit.
+          if ! git merge --no-commit --no-ff upstream/main; then
+            echo "has_conflicts=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_conflicts=false" >> "$GITHUB_OUTPUT"
+          fi
+
+          # Restore Exeio-owned paths to our version regardless of whether
+          # the merge conflicted on them or silently took upstream's — this
+          # is a hard exclusion, not "prefer ours on conflict".
+          git checkout origin/main -- webui/ ':(glob)nanobot/channels/*/webui/' 2>/dev/null || true
+
+          git add -A
+          git commit -m "sync: merge upstream/main (webui/** preserved as Exeio's)" || true
+
+      - name: Categorize the resulting diff (docs-only vs core)
+        id: scope
+        if: steps.existing.outputs.count == '0' && steps.drift.outputs.new_commits != '0'
+        run: |
+          changed="$(git diff --name-only origin/main..HEAD)"
+          non_docs="$(grep -vE '^docs/' <<< "$changed")"
+          if [ -z "$changed" ]; then
+            echo "scope=empty" >> "$GITHUB_OUTPUT"
+          elif [ -z "$non_docs" ]; then
+            echo "scope=docs-only" >> "$GITHUB_OUTPUT"
+          else
+            echo "scope=core" >> "$GITHUB_OUTPUT"
+          fi
+          echo "$changed"
+
+      - name: Push sync branch
+        if: >-
+          steps.existing.outputs.count == '0' && steps.drift.outputs.new_commits != '0'
+          && steps.scope.outputs.scope != 'empty'
+        run: git push origin "${{ steps.merge.outputs.branch }}"
+
+      - name: Open the sync PR
+        id: pr
+        if: >-
+          steps.existing.outputs.count == '0' && steps.drift.outputs.new_commits != '0'
+          && steps.scope.outputs.scope != 'empty'
+        run: |
+          scope="${{ steps.scope.outputs.scope }}"
+          new_channels="${{ steps.newchannels.outputs.new_channels }}"
+          conflicts="${{ steps.merge.outputs.has_conflicts }}"
+
+          title="sync: pull upstream/main ($scope)"
+          body="Automated sync from [HKUDS/nanobot](https://github.com/HKUDS/nanobot) — \`webui/**\` and \`nanobot/channels/*/webui/**\` are excluded and restored to this fork's own version, regardless of what upstream changed there.
+
+          **Scope detected:** \`$scope\`
+          **Merge conflicts on non-excluded paths:** \`$conflicts\`"
+
+          if [ -n "$new_channels" ]; then
+            body="$body
+
+          > [!WARNING]
+          > Upstream added a channel with no local \`nanobot/channels/*/webui/\` counterpart yet: **$new_channels**. Its webui bundle came through un-rebranded (there was nothing local to restore it to). Needs a manual one-time rebrand pass before this is safe to merge."
+          fi
+
+          if [ "$conflicts" = "true" ]; then
+            body="$body
+
+          > [!CAUTION]
+          > The merge had conflicts outside the excluded webui paths. Resolve them on the \`${{ steps.merge.outputs.branch }}\` branch before merging."
+          fi
+
+          pr_url="$(gh pr create \
+            --base main \
+            --head "${{ steps.merge.outputs.branch }}" \
+            --title "$title" \
+            --body "$body" \
+            --label "$SYNC_LABEL")"
+          echo "url=$pr_url" >> "$GITHUB_OUTPUT"
+
+          # Hard rule: a new-channel warning always forces manual review,
+          # even on an otherwise docs-only-shaped diff.
+          if [ "$scope" = "docs-only" ] && [ -z "$new_channels" ] && [ "$conflicts" != "true" ]; then
+            echo "auto_merge=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "auto_merge=false" >> "$GITHUB_OUTPUT"
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Enable auto-merge for docs-only PRs
+        if: steps.pr.outputs.auto_merge == 'true'
+        run: gh pr merge --auto --merge "${{ steps.pr.outputs.url }}"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
