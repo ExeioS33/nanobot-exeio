@@ -1,5 +1,5 @@
 {
-  "description": "Gunakan Exeio dari grup DingTalk.",
+  "description": "Gunakan nanobot dari grup DingTalk.",
   "requirements": "Kredensial aplikasi DingTalk dan gateway",
   "setup": {
     "docsLabel": "Buka panduan DingTalk",

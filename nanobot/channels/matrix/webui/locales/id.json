@@ -1,5 +1,5 @@
 {
-  "description": "Gunakan Exeio dari ruang Matrix.",
+  "description": "Gunakan nanobot dari ruang Matrix.",
   "requirements": "Homeserver, token akun, dan akses ruang",
   "setup": {
     "docsLabel": "Buka panduan Matrix",
@@ -7,7 +7,7 @@
     "tryIt": "Undang akun Matrix ke ruang dan kirim pesan uji.",
     "summary": "Matrix memerlukan akun homeserver dan login dengan kata sandi atau token akses.",
     "steps": [
-      "Buat atau pilih akun Matrix untuk Exeio.",
+      "Buat atau pilih akun Matrix untuk nanobot.",
       "Masukkan homeserver, ID pengguna, dan kata sandi atau token akses.",
       "Simpan dan aktifkan Matrix, undang akun ke ruang, lalu kirim pesan uji."
     ],
@@ -18,7 +18,7 @@
       },
       "userId": {
         "label": "ID pengguna",
-        "placeholder": "@exeio:matrix.org"
+        "placeholder": "@nanobot:matrix.org"
       },
       "password": {
         "label": "Kata sandi",

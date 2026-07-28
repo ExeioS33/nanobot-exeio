@@ -6,6 +6,7 @@ import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
+import { brandText } from "@/brand/exeio-brand";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { ThreadComposer } from "@/components/thread/ThreadComposer";
 import { resources } from "@/i18n";
@@ -258,11 +259,14 @@ describe("webui i18n", () => {
       const result = runPrebootLocale(code);
       const expected = resources[code].common.app;
 
+      // index.html's preboot copy is Exeio-branded in place (it renders before
+      // i18next exists), so compare against the branded bundle value — that is
+      // what the app shows once it boots. See brand/exeio-brand.ts.
       expect({ code, ...result }).toEqual({
         code,
         lang: code,
-        boot: expected.loading.boot,
-        description: expected.meta.description,
+        boot: brandText(expected.loading.boot, code),
+        description: brandText(expected.meta.description, code),
       });
     }
   });
@@ -273,8 +277,8 @@ describe("webui i18n", () => {
     for (const locale of ["pt", "pt-PT"]) {
       expect(runPrebootLocale(locale)).toEqual({
         lang: "pt-BR",
-        boot: expected.loading.boot,
-        description: expected.meta.description,
+        boot: brandText(expected.loading.boot, "pt-BR"),
+        description: brandText(expected.meta.description, "pt-BR"),
       });
     }
   });

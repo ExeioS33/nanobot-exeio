@@ -1,6 +1,8 @@
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 
+import { exeioBrandPostProcessor } from "@/brand/exeio-brand";
+
 import {
   channelLocaleNamespaces,
   channelLocaleResources,
@@ -51,6 +53,7 @@ export async function setAppLanguage(locale: SupportedLocale): Promise<void> {
 
 if (!i18n.isInitialized) {
   void i18n
+    .use(exeioBrandPostProcessor)
     .use(initReactI18next)
     .init({
       resources,
@@ -63,6 +66,9 @@ if (!i18n.isInitialized) {
       },
       returnNull: false,
       supportedLngs: Object.keys(resources),
+      // Applies to every namespace, including per-channel bundles and any
+      // locale upstream adds later. See brand/exeio-brand.ts.
+      postProcess: ["exeioBrand"],
     });
 }
 
