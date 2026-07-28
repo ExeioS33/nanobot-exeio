@@ -1,12 +1,12 @@
 {
   "app": {
-    "brand": "Exeio",
+    "brand": "nanobot",
     "loading": {
-      "connecting": "Connexion à Exeio…",
-      "boot": "Chargement d’Exeio…"
+      "connecting": "Connexion à nanobot…",
+      "boot": "Chargement de nanobot…"
     },
     "error": {
-      "title": "Impossible de joindre Exeio",
+      "title": "Impossible de joindre nanobot",
       "gatewayHint": "Assurez-vous que la gateway est en cours d’exécution (`nanobot gateway`) et que cette page est ouverte sur la même machine."
     },
     "auth": {
@@ -23,8 +23,8 @@
     },
     "system": {
       "section": "Système",
-      "restartHint": "Redémarrez Exeio pour appliquer les changements d’exécution.",
-      "restart": "Redémarrer Exeio",
+      "restartHint": "Redémarrez nanobot pour appliquer les changements d’exécution.",
+      "restart": "Redémarrer nanobot",
       "restarting": "Redémarrage...",
       "restartEngine": "Redémarrer le moteur",
       "restartingEngine": "Redémarrage du moteur..."
@@ -33,11 +33,11 @@
       "completed": "Redémarrage terminé en {{seconds}} s."
     },
     "documentTitle": {
-      "base": "Exeio",
-      "chat": "{{title}} · Exeio"
+      "base": "nanobot",
+      "chat": "{{title}} · nanobot"
     },
     "meta": {
-      "description": "Interface web Exeio — discutez avec votre espace de travail Exeio."
+      "description": "Interface web nanobot — discutez avec votre espace de travail nanobot."
     }
   },
   "sidebar": {
@@ -112,7 +112,7 @@
       "language": "Langue",
       "provider": "Fournisseur",
       "model": "Modèle",
-      "restart": "Redémarrer Exeio",
+      "restart": "Redémarrer nanobot",
       "configPath": "Chemin de config",
       "activePreset": "Préréglage actif",
       "gateway": "Passerelle",
@@ -179,7 +179,7 @@
       "defaultAspectRatio": "Utilisé lorsque le prompt ne choisit pas de ratio.",
       "defaultImageSize": "Indication de taille envoyée aux fournisseurs compatibles.",
       "maxImagesPerTurn": "Limite supérieure pour une requête generate_image.",
-      "botName": "Affiché là où Exeio utilise un nom visible.",
+      "botName": "Affiché là où nanobot utilise un nom visible.",
       "botIcon": "Emoji ou texte court affiché avec le nom du bot.",
       "timezone": "Utilisé pour les horaires et les réponses tenant compte du temps.",
       "localServiceAccess": "Autorise les commandes shell Full Access à atteindre les services localhost.",
@@ -189,7 +189,7 @@
       "selectedModelProvider": "Défini par le modèle sélectionné.",
       "selectedModelValue": "Défini par le modèle sélectionné.",
       "brandLogos": "Affiche les logos de fournisseurs tiers et CLI dans les Réglages.",
-      "cliAppsCatalog": "Installe uniquement les adaptateurs CLI d’apps que Exeio peut exécuter localement ; les apps natives restent inchangées.",
+      "cliAppsCatalog": "Installe uniquement les adaptateurs CLI d’apps que nanobot peut exécuter localement ; les apps natives restent inchangées.",
       "cliAppsFilter": "Recherchez par app, catégorie ou capacité.",
       "logs": "Ouvre le dossier des journaux du moteur natif.",
       "diagnostics": "Exporte un petit rapport d’exécution pour le support.",
@@ -235,11 +235,11 @@
       "loadError": "Impossible de charger les réglages",
       "unsaved": "Modifications non enregistrées.",
       "upToDate": "À jour.",
-      "savedRestart": "Enregistré. Redémarrez Exeio pour appliquer.",
+      "savedRestart": "Enregistré. Redémarrez nanobot pour appliquer.",
       "restartAfterSaving": "Enregistrez les changements, puis redémarrez quand vous êtes prêt.",
       "savedRestartApply": "Enregistré. Redémarrez quand vous êtes prêt.",
       "imageProviderRestart": "Changements du fournisseur d’image enregistrés. Redémarrez quand vous êtes prêt.",
-      "hostRestartAfterSaving": "En enregistrant, Exeio redémarrera son moteur.",
+      "hostRestartAfterSaving": "En enregistrant, nanobot redémarrera son moteur.",
       "hostRestartPending": "Enregistré. Le moteur redémarrera lorsqu’il sera prêt.",
       "hostApiUnavailable": "Les actions de l’hôte ne sont disponibles que dans l’app native.",
       "logsOpened": "Dossier des journaux ouvert.",
@@ -262,7 +262,7 @@
       "exporting": "Exportation..."
     },
     "byok": {
-      "description": "Utilisez vos propres clés de fournisseur. Exeio lit ces valeurs depuis la configuration actuelle et seuls les fournisseurs configurés peuvent être utilisés dans les préréglages de modèle.",
+      "description": "Utilisez vos propres clés de fournisseur. Nanobot lit ces valeurs depuis la configuration actuelle et seuls les fournisseurs configurés peuvent être utilisés dans les préréglages de modèle.",
       "configured": "Configuré",
       "notConfigured": "Non configuré",
       "configuredSection": "Configurés",
@@ -486,7 +486,7 @@
       "saveCustom": "Enregistrer MCP",
       "configImport": "Importer mcp.json",
       "importConfig": "Importer",
-      "restartRequired": "Redémarrez Exeio pour connecter les outils MCP mis à jour.",
+      "restartRequired": "Redémarrez nanobot pour connecter les outils MCP mis à jour.",
       "toolsFound": "{{count}} outils",
       "loading": "Chargement des presets MCP...",
       "empty": "Aucun preset MCP ne correspond à ce filtre.",
@@ -523,14 +523,14 @@
       "autoInstall": "Le support API sera installé automatiquement au démarrage."
     },
     "observability": {
-      "title": "Observabilité", "configured": "Les identifiants de traçage sont disponibles pour Exeio.",
-      "environment": "Définissez LANGFUSE_SECRET_KEY et LANGFUSE_PUBLIC_KEY, puis redémarrez Exeio.", "enable": "Activer le traçage"
+      "title": "Observabilité", "configured": "Les identifiants de traçage sont disponibles pour nanobot.",
+      "environment": "Définissez LANGFUSE_SECRET_KEY et LANGFUSE_PUBLIC_KEY, puis redémarrez nanobot.", "enable": "Activer le traçage"
     },
     "legal": {
       "thirdPartyBrands": "Les noms, logos et marques de produits appartiennent à leurs propriétaires respectifs. Leur utilisation sert uniquement à l'identification et n'implique aucune approbation."
     },
     "apps": {
-      "description": "Ajoutez des outils à Exeio, puis utilisez-les avec @ dans le chat.",
+      "description": "Ajoutez des outils à nanobot, puis utilisez-les avec @ dans le chat.",
       "cliLabel": "App",
       "mcpLabel": "Intégration",
       "channelLabel": "Canal",
@@ -545,21 +545,21 @@
       "featured": "Outils",
       "loading": "Chargement des apps...",
       "empty": "Aucun outil ne correspond à cette vue.",
-      "restartRequired": "Redémarrez Exeio pour appliquer les apps et fonctions mises à jour."
+      "restartRequired": "Redémarrez nanobot pour appliquer les apps et fonctions mises à jour."
     },
     "channels": {
-      "description": "Connectez Exeio aux apps de discussion. L'installation du support ajoute seulement le paquet d'intégration ; la plupart des canaux nécessitent encore des tokens ou des réglages d'espace de travail.",
+      "description": "Connectez nanobot aux apps de discussion. L'installation du support ajoute seulement le paquet d'intégration ; la plupart des canaux nécessitent encore des tokens ou des réglages d'espace de travail.",
       "caption": "{{enabled}} activés · {{total}} canaux",
       "searchPlaceholder": "Rechercher des canaux",
       "backToChannels": "Tous les canaux",
       "catalog": "Canaux",
       "loading": "Chargement des canaux...",
       "empty": "Aucun canal ne correspond à ce filtre.",
-      "restartRequired": "Redémarrez Exeio pour appliquer le support de canal mis à jour.",
+      "restartRequired": "Redémarrez nanobot pour appliquer le support de canal mis à jour.",
       "requires": "Requiert : {{requirements}}",
       "setUp": "Configurer",
       "setupGuide": "Guide de configuration",
-      "setupSummary": "L'activation n'active que le support Exeio. Ajoutez les identifiants de la plateforme, puis redémarrez Exeio.",
+      "setupSummary": "L'activation n'active que le support nanobot. Ajoutez les identifiants de la plateforme, puis redémarrez nanobot.",
       "configKeys": "Clés de configuration",
       "enable": "Activer le canal",
       "disable": "Désactiver le canal",
@@ -620,7 +620,7 @@
       "missingDependency": "Support manquant",
       "installSupport": "Installer le support",
       "installConfirmTitle": "Installer le support pour {{name}} ?",
-      "installConfirmDescription": "Exeio ajoutera ce dont {{name}} a besoin, puis l'activera. Continuer ?",
+      "installConfirmDescription": "nanobot ajoutera ce dont {{name}} a besoin, puis l'activera. Continuer ?",
       "installConfirmAction": "Installer et activer",
       "websocketRequired": "Requis pour la WebUI",
       "channelDisabled": "Canal désactivé",
@@ -645,7 +645,7 @@
       "loading": "Chargement des automatisations...",
       "noMatches": "Aucune automatisation ne correspond à cette vue.",
       "empty": "Aucune automatisation pour le moment.",
-      "emptyHint": "Créez-la depuis son point d'exécution pour que Exeio conserve le bon contexte.",
+      "emptyHint": "Créez-la depuis son point d'exécution pour que nanobot conserve le bon contexte.",
       "oneShot": "Ponctuelle",
       "systemTask": "Automatisation gérée par le système",
       "localTrigger": "Déclencheur local",
@@ -766,7 +766,7 @@
       "proxyLabel": "Proxy réseau",
       "proxySaveBeforeSignIn": "Enregistrez les modifications du proxy avant de vous connecter.",
       "saveProxy": "Enregistrer le proxy",
-      "localCodeHelp": "Terminez la connexion dans votre navigateur. Exeio termine généralement automatiquement ; sinon, collez le code d’autorisation ci-dessous.",
+      "localCodeHelp": "Terminez la connexion dans votre navigateur. nanobot termine généralement automatiquement ; sinon, collez le code d’autorisation ci-dessous.",
       "remoteCodeHelp": "Sélectionnez Se connecter pour ouvrir xAI sur votre ordinateur. Après la connexion, collez ci-dessous le code d’autorisation affiché par xAI.",
       "authorizationCode": "Code d’autorisation",
       "finishSignIn": "Terminer la connexion"
@@ -914,7 +914,7 @@
       "imageQuickActions": {
         "icon": {
           "title": "Créer une icône d’app",
-          "prompt": "Générez une icône d’application 1:1 propre pour Exeio : robot sympathique, style vectoriel simple, palette douce bleu et blanc, sans texte."
+          "prompt": "Générez une icône d’application 1:1 propre pour nanobot : robot sympathique, style vectoriel simple, palette douce bleu et blanc, sans texte."
         },
         "sticker": {
           "title": "Créer un sticker",
@@ -1050,7 +1050,7 @@
             "description": "Annuler le tour agent actif pour cette discussion."
           },
           "restart": {
-            "title": "Redémarrer Exeio",
+            "title": "Redémarrer nanobot",
             "description": "Redémarrer le processus du bot sur place."
           },
           "status": {
@@ -1236,7 +1236,7 @@
     },
     "workspaceScopeRejected": {
       "title": "L’espace de travail n’a pas changé",
-      "body": "La passerelle a refusé le projet ou le mode d’accès demandé ; Exeio a conservé l’espace de travail précédent."
+      "body": "La passerelle a refusé le projet ou le mode d’accès demandé ; Nanobot a conservé l’espace de travail précédent."
     }
   },
   "workspace": {

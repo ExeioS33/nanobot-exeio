@@ -1,5 +1,5 @@
 {
-  "description": "Gunakan Exeio dari percakapan WhatsApp.",
+  "description": "Gunakan nanobot dari percakapan WhatsApp.",
   "requirements": "Setup koneksi WhatsApp dan gateway",
   "setup": {
     "primaryAction": "Hubungkan WhatsApp",

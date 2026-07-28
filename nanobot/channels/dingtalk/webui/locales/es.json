@@ -1,5 +1,5 @@
 {
-  "description": "Usa Exeio desde grupos de DingTalk.",
+  "description": "Usa nanobot desde grupos de DingTalk.",
   "requirements": "Credenciales de la app de DingTalk y gateway",
   "setup": {
     "docsLabel": "Abrir guía de DingTalk",

@@ -992,7 +992,7 @@ describe("SettingsView Apps catalog", () => {
     renderSettingsView({ initialSection: "channels" });
 
     fireEvent.click(await screen.findByRole("button", { name: "nanobot" }));
-    fireEvent.click(await screen.findByRole("switch", { name: "nanobot assistant" }));
+    fireEvent.click(await screen.findByRole("switch", { name: "Exeio assistant" }));
 
     await waitFor(() =>
       expect(fetchMock).toHaveBeenCalledWith(
@@ -1005,7 +1005,7 @@ describe("SettingsView Apps catalog", () => {
     expect(fetchMock.mock.calls.some(([input]) =>
       String(input) === "/api/settings/channels/feishu/connect/start?domain=feishu&instance_id=default&mode=replace",
     )).toBe(false);
-    expect(screen.getByRole("switch", { name: "nanobot assistant" })).toHaveAttribute(
+    expect(screen.getByRole("switch", { name: "Exeio assistant" })).toHaveAttribute(
       "aria-checked",
       "true",
     );

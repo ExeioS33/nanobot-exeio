@@ -1,5 +1,5 @@
 {
-  "description": "로컬 브라우저 워크벤치에서 Exeio를 사용합니다.",
+  "description": "로컬 브라우저 워크벤치에서 nanobot을 사용합니다.",
   "requirements": "로컬 게이트웨이 및 WebSocket 토큰",
   "setup": {
     "docsLabel": "WebSocket 설정 가이드 열기",

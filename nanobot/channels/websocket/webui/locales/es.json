@@ -1,5 +1,5 @@
 {
-  "description": "Usa Exeio desde el entorno de trabajo del navegador local.",
+  "description": "Usa nanobot desde el entorno de trabajo del navegador local.",
   "requirements": "Gateway local y token WebSocket",
   "setup": {
     "docsLabel": "Abrir guía de WebSocket",

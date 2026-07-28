@@ -2,6 +2,9 @@ import ReactDOM from "react-dom/client";
 
 import App from "./App";
 import "./globals.css";
+// Must follow globals.css: overrides upstream's design tokens with Exeio's
+// palette. Unlayered, so it wins the cascade without touching globals.css.
+import "./brand/exeio-theme.css";
 import "./i18n";
 import { initializeLoopbackRuntimeHost } from "./lib/runtime";
 

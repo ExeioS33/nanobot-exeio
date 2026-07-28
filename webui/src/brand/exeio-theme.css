@@ -1,0 +1,95 @@
+/**
+ * Exeio palette override.
+ *
+ * Upstream defines its design tokens inside `@layer base` in globals.css.
+ * These rules are deliberately UNLAYERED: per the CSS cascade-layers spec,
+ * unlayered declarations outrank layered ones regardless of source order, so
+ * this wins without `!important` and without editing globals.css — which
+ * upstream changes roughly twice a week.
+ *
+ * Only token VALUES are set here. Token names are upstream's contract; if a
+ * name is ever renamed upstream this file would silently stop applying, so
+ * exeio-theme.test.ts asserts every name below still exists in globals.css.
+ */
+
+:root {
+  --background: 48 18% 95%;
+  --foreground: 216 11% 9%;
+  --card: 48 18% 98%;
+  --card-foreground: 216 11% 9%;
+  --popover: 48 18% 98%;
+  --popover-foreground: 216 11% 9%;
+  --primary: 151 69% 37%;
+  --primary-foreground: 216 11% 9%;
+  --secondary: 150 14% 91%;
+  --secondary-foreground: 216 11% 9%;
+  --muted: 150 14% 91%;
+  --muted-foreground: 150 8% 40%;
+  --accent: 145 45% 91%;
+  --accent-foreground: 151 60% 16%;
+  --border: 150 14% 87%;
+  --input: 150 14% 87%;
+  --ring: 151 69% 37%;
+  --sidebar: 150 16% 96%;
+  --sidebar-foreground: 216 11% 9%;
+  --sidebar-accent: 145 40% 90%;
+  --sidebar-accent-foreground: 151 60% 16%;
+  --sidebar-border: 150 14% 87%;
+  --settings-surface: 150 14% 93%;
+}
+
+.dark {
+  --background: 150 17% 2%;
+  --foreground: 135 13% 94%;
+  --card: 150 14% 6%;
+  --card-foreground: 135 13% 94%;
+  --popover-foreground: 135 13% 94%;
+  --primary: 142 70% 70%;
+  --primary-foreground: 150 17% 2%;
+  --secondary-foreground: 135 13% 94%;
+  --muted-foreground: 140 8% 66%;
+  --accent: 148 25% 18%;
+  --accent-foreground: 145 55% 90%;
+  --border: 150 12% 16%;
+  --ring: 142 70% 70%;
+  --sidebar: 150 17% 2%;
+  --sidebar-foreground: 135 13% 94%;
+  --sidebar-accent: 148 22% 14%;
+  --sidebar-accent-foreground: 145 55% 90%;
+  --sidebar-border: 150 12% 14%;
+}
+
+/* Goal halo: brand emerald. Redefining the keyframes by name replaces
+   upstream's sky-blue version wholesale. */
+@keyframes goal-shell-glow-breathe {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 10px hsl(151 72% 40% / 0.22))
+      drop-shadow(0 0 24px hsl(148 80% 45% / 0.14));
+  }
+  50% {
+    filter: drop-shadow(0 0 17px hsl(151 78% 36% / 0.32))
+      drop-shadow(0 0 38px hsl(148 85% 42% / 0.2));
+  }
+}
+
+@keyframes goal-shell-glow-breathe-dark {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 12px hsl(142 90% 58% / 0.28))
+      drop-shadow(0 0 28px hsl(145 95% 52% / 0.16));
+  }
+  50% {
+    filter: drop-shadow(0 0 20px hsl(142 95% 64% / 0.42))
+      drop-shadow(0 0 42px hsl(145 100% 56% / 0.24));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .goal-shell-glow {
+    filter: drop-shadow(0 0 14px hsl(151 70% 38% / 0.24));
+  }
+  .dark .goal-shell-glow {
+    filter: drop-shadow(0 0 14px hsl(142 88% 56% / 0.32));
+  }
+}
