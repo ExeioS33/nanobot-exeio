@@ -135,7 +135,10 @@ jobs:
         if: >-
           steps.existing.outputs.count == '0' && steps.drift.outputs.new_commits != '0'
           && steps.scope.outputs.scope != 'empty'
-        run: git push origin "${{ steps.merge.outputs.branch }}"
+        # --force: this is a bot-owned, throwaway integration branch rebuilt
+        # from scratch every run — a retry on the same day must be able to
+        # overwrite a stale push from an earlier failed attempt.
+        run: git push --force origin "${{ steps.merge.outputs.branch }}"
 
       - name: Open the sync PR
         id: pr
