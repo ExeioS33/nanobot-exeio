@@ -1,5 +1,5 @@
 {
-  "description": "Use nanobot from the local browser workbench.",
+  "description": "Use Exeio from the local browser workbench.",
   "requirements": "Local gateway, WebSocket token",
   "setup": {
     "docsLabel": "Open WebSocket setup",

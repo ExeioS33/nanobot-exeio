@@ -13,65 +13,65 @@
 @layer base {
   :root {
     color-scheme: light;
-    --background: 0 0% 100%;
-    --foreground: 240 3% 12%;
-    --card: 0 0% 100%;
-    --card-foreground: 240 3% 12%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 240 3% 12%;
-    --primary: 240 4% 16%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 0 0% 96.1%;
-    --secondary-foreground: 0 0% 9%;
-    --muted: 0 0% 96.1%;
-    --muted-foreground: 0 0% 45.1%;
-    --accent: 0 0% 96.1%;
-    --accent-foreground: 0 0% 9%;
+    --background: 48 18% 95%;
+    --foreground: 216 11% 9%;
+    --card: 48 18% 98%;
+    --card-foreground: 216 11% 9%;
+    --popover: 48 18% 98%;
+    --popover-foreground: 216 11% 9%;
+    --primary: 151 69% 37%;
+    --primary-foreground: 216 11% 9%;
+    --secondary: 150 14% 91%;
+    --secondary-foreground: 216 11% 9%;
+    --muted: 150 14% 91%;
+    --muted-foreground: 150 8% 40%;
+    --accent: 145 45% 91%;
+    --accent-foreground: 151 60% 16%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-    --border: 40 8% 90.5%;
-    --input: 40 8% 90.5%;
-    --ring: 0 0% 3.9%;
+    --border: 150 14% 87%;
+    --input: 150 14% 87%;
+    --ring: 151 69% 37%;
     --inline-token-highlight: 221 70% 50%;
     --radius: 0.4375rem;
-    --sidebar: 40 8% 96.8%;
-    --sidebar-foreground: 0 0% 3.9%;
-    --sidebar-accent: 0 0% 95.8%;
-    --sidebar-accent-foreground: 0 0% 9%;
-    --sidebar-border: 40 8% 90.5%;
+    --sidebar: 150 16% 96%;
+    --sidebar-foreground: 216 11% 9%;
+    --sidebar-accent: 145 40% 90%;
+    --sidebar-accent-foreground: 151 60% 16%;
+    --sidebar-border: 150 14% 87%;
     --settings-canvas: var(--background);
-    --settings-surface: 60 6% 96.7%;
+    --settings-surface: 150 14% 93%;
     --scrollbar-thumb: hsl(var(--muted-foreground) / 0.26);
     --scrollbar-thumb-hover: hsl(var(--muted-foreground) / 0.42);
   }
 
   .dark {
     color-scheme: dark;
-    --background: 0 0% 19%;
-    --foreground: 240 4% 96%;
-    --card: 0 0% 22%;
-    --card-foreground: 240 4% 96%;
+    --background: 150 17% 2%;
+    --foreground: 135 13% 94%;
+    --card: 150 14% 6%;
+    --card-foreground: 135 13% 94%;
     --popover: var(--card);
-    --popover-foreground: 240 4% 96%;
-    --primary: 240 5% 98%;
-    --primary-foreground: 0 0% 9%;
+    --popover-foreground: 135 13% 94%;
+    --primary: 142 70% 70%;
+    --primary-foreground: 150 17% 2%;
     --secondary: var(--card);
-    --secondary-foreground: 0 0% 98%;
+    --secondary-foreground: 135 13% 94%;
     --muted: var(--card);
-    --muted-foreground: 0 0% 65%;
-    --accent: 0 0% 25%;
-    --accent-foreground: 0 0% 98%;
+    --muted-foreground: 140 8% 66%;
+    --accent: 148 25% 18%;
+    --accent-foreground: 145 55% 90%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 28%;
+    --border: 150 12% 16%;
     --input: var(--border);
-    --ring: 0 0% 83.1%;
+    --ring: 142 70% 70%;
     --inline-token-highlight: 217 92% 72%;
-    --sidebar: var(--card);
-    --sidebar-foreground: 0 0% 98%;
-    --sidebar-accent: var(--background);
-    --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: var(--border);
+    --sidebar: 150 17% 2%;
+    --sidebar-foreground: 135 13% 94%;
+    --sidebar-accent: 148 22% 14%;
+    --sidebar-accent-foreground: 145 55% 90%;
+    --sidebar-border: 150 12% 14%;
     --settings-canvas: var(--background);
     --settings-surface: var(--card);
     --scrollbar-thumb: hsl(var(--muted-foreground) / 0.28);
@@ -524,16 +524,16 @@
     }
   }
 
-  /** Goal halo: pale sky blue (not ``--primary``, which often reads as neutral gray). */
+  /** Goal halo: brand emerald (echoes ``--primary`` in dark mode). */
   @keyframes goal-shell-glow-breathe {
     0%,
     100% {
-      filter: drop-shadow(0 0 10px hsl(204 72% 52% / 0.22))
-        drop-shadow(0 0 24px hsl(199 80% 58% / 0.14));
+      filter: drop-shadow(0 0 10px hsl(151 72% 40% / 0.22))
+        drop-shadow(0 0 24px hsl(148 80% 45% / 0.14));
     }
     50% {
-      filter: drop-shadow(0 0 17px hsl(204 78% 48% / 0.32))
-        drop-shadow(0 0 38px hsl(199 85% 55% / 0.2));
+      filter: drop-shadow(0 0 17px hsl(151 78% 36% / 0.32))
+        drop-shadow(0 0 38px hsl(148 85% 42% / 0.2));
     }
   }
   .goal-shell-glow {
@@ -542,12 +542,12 @@
   @keyframes goal-shell-glow-breathe-dark {
     0%,
     100% {
-      filter: drop-shadow(0 0 12px hsl(198 90% 72% / 0.28))
-        drop-shadow(0 0 28px hsl(195 95% 65% / 0.16));
+      filter: drop-shadow(0 0 12px hsl(142 90% 58% / 0.28))
+        drop-shadow(0 0 28px hsl(145 95% 52% / 0.16));
     }
     50% {
-      filter: drop-shadow(0 0 20px hsl(198 95% 78% / 0.42))
-        drop-shadow(0 0 42px hsl(195 100% 70% / 0.24));
+      filter: drop-shadow(0 0 20px hsl(142 95% 64% / 0.42))
+        drop-shadow(0 0 42px hsl(145 100% 56% / 0.24));
     }
   }
   .dark .goal-shell-glow {
@@ -556,10 +556,10 @@
   @media (prefers-reduced-motion: reduce) {
     .goal-shell-glow {
       animation: none;
-      filter: drop-shadow(0 0 14px hsl(204 70% 50% / 0.24));
+      filter: drop-shadow(0 0 14px hsl(151 70% 38% / 0.24));
     }
     .dark .goal-shell-glow {
-      filter: drop-shadow(0 0 14px hsl(198 88% 70% / 0.32));
+      filter: drop-shadow(0 0 14px hsl(142 88% 56% / 0.32));
     }
   }
 

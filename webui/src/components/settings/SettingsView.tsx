@@ -5457,7 +5457,7 @@ function AutomationsSettings({
             <div className="mx-auto mt-2 max-w-[28rem] text-[12px] leading-5">
               {tx(
                 "settings.automations.emptyHint",
-                "Create one from where it should run so nanobot keeps the right context.",
+                "Create one from where it should run so Exeio keeps the right context.",
               )}
             </div>
           ) : null}
@@ -6179,7 +6179,7 @@ function NanobotFeatureInstallDialog({
           <DialogDescription className="mt-3 max-w-[20rem] text-center text-[14px] leading-6 text-muted-foreground">
             {tx(
               "settings.nanobotFeatures.installConfirmDescription",
-              "nanobot will add what {{name}} needs, then turn it on. Continue?",
+              "Exeio will add what {{name}} needs, then turn it on. Continue?",
               { name },
             )}
           </DialogDescription>
@@ -7022,7 +7022,7 @@ function ChannelsSettings({
       {requiresRestartPending ? (
         <div className="mt-3 shrink-0">
           <RestartRequiredNotice
-            message={tx("settings.channels.restartRequired", "Restart nanobot to apply updated channel support.")}
+            message={tx("settings.channels.restartRequired", "Restart Exeio to apply updated channel support.")}
             onRestart={onRestart}
             isRestarting={isRestarting}
           />
@@ -7211,7 +7211,7 @@ function AppsCatalogSettings({
           <p className="max-w-[680px] text-[13px] leading-5 text-muted-foreground">
             {tx(
               "settings.apps.description",
-              "Add tools to nanobot, then @ them in chat.",
+              "Add tools to Exeio, then @ them in chat.",
             )}
           </p>
           <span className="text-[12px] font-medium text-muted-foreground">{caption}</span>
@@ -7251,7 +7251,7 @@ function AppsCatalogSettings({
 
       {requiresRestartPending ? (
         <RestartRequiredNotice
-          message={tx("settings.apps.restartRequired", "Restart nanobot to apply updated apps and features.")}
+          message={tx("settings.apps.restartRequired", "Restart Exeio to apply updated apps and features.")}
           onRestart={onRestart}
           isRestarting={isRestarting}
         />
@@ -8297,7 +8297,7 @@ function RuntimeSettings({
       <section>
         <SettingsSectionTitle>{tx("settings.sections.identity", "Identity")}</SettingsSectionTitle>
           <SettingsGroup>
-          <SettingsRow title={tx("settings.rows.botName", "Bot name")} description={tx("settings.help.botName", "Shown wherever nanobot uses a display name.")}>
+          <SettingsRow title={tx("settings.rows.botName", "Bot name")} description={tx("settings.help.botName", "Shown wherever Exeio uses a display name.")}>
             <Input
               value={form.botName}
               onChange={(event) => setForm((prev) => ({ ...prev, botName: event.target.value }))}
@@ -8323,7 +8323,7 @@ function RuntimeSettings({
             pendingRestart={requiresRestartPending}
             dirtyMessage={
               isNativeHost
-                ? tx("settings.status.hostRestartAfterSaving", "Save changes and nanobot will restart its engine.")
+                ? tx("settings.status.hostRestartAfterSaving", "Save changes and Exeio will restart its engine.")
                 : tx("settings.status.restartAfterSaving", "Save changes, then restart when ready.")
             }
             pendingMessage={

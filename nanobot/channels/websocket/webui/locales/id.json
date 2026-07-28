@@ -1,5 +1,5 @@
 {
-  "description": "Gunakan nanobot dari ruang kerja browser lokal.",
+  "description": "Gunakan Exeio dari ruang kerja browser lokal.",
   "requirements": "Gateway lokal dan token WebSocket",
   "setup": {
     "docsLabel": "Buka panduan WebSocket",
