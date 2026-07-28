@@ -3,7 +3,7 @@
 # overrides these in normal use). Kept here so the role doesn't break if used
 # standalone outside this playbook.
 nanobot_repo_url: "https://github.com/ExeioS33/nanobot-exeio.git"
-nanobot_repo_ref: "main"
+nanobot_repo_ref: "dev"
 nanobot_deploy_dir: "/opt/nanobot"
 nanobot_data_dir: "/home/{{ ansible_user }}/.nanobot"
 nanobot_channels: "telegram"
