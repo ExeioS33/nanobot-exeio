@@ -1,0 +1,15 @@
+{{ ansible_managed | comment }}
+# Caddy over nginx here specifically because: (1) zero-config automatic TLS
+# via Let's Encrypt as long as DNS already points at this host, and (2)
+# reverse_proxy handles the WebSocket upgrade the WebUI needs automatically —
+# nginx needs manual `Upgrade`/`Connection` header proxying for that.
+
+{{ nanobot_domain }} {
+	reverse_proxy 127.0.0.1:8765
+}
+
+{% if "nanobot-api" in nanobot_services %}
+api.{{ nanobot_domain }} {
+	reverse_proxy 127.0.0.1:8900
+}
+{% endif %}

@@ -1,0 +1,40 @@
+---
+# Template for the real secrets file. NEVER commit an unencrypted vault.yml.
+#
+# Setup (once):
+#   cp group_vars/all/vault.yml.example group_vars/all/vault.yml
+#   vim group_vars/all/vault.yml              # fill in real values below
+#   ansible-vault encrypt group_vars/all/vault.yml
+#
+# Day-to-day edits after that:
+#   ansible-vault edit group_vars/all/vault.yml
+#
+# The real vault.yml (and .vault-pass) are gitignored — see the note at the
+# bottom of ansible/README.md. This .example file is the only one tracked.
+
+# LLM provider keys — get these from your existing ~/.nanobot/config.json /
+# .env on your dev machine. Only fill in the ones you actually use.
+vault_together_ai_api_key: "tgp_v1_REPLACE_ME"
+vault_nvidia_api_key: "nvapi-REPLACE_ME"
+vault_groq_api_key: "gsk_REPLACE_ME"
+
+# Telegram bot token from @BotFather
+vault_telegram_bot_api_key: "REPLACE_ME:AAA-REPLACE_ME"
+
+# Langfuse observability (optional — leave as-is / delete the tasks that
+# reference these if you don't use Langfuse)
+vault_langfuse_secret_key: "sk-lf-REPLACE_ME"
+vault_langfuse_public_key: "pk-lf-REPLACE_ME"
+vault_langfuse_base_url: "https://cloud.langfuse.com"
+
+# WebSocket bootstrap secret (channels.websocket.tokenIssueSecret). Generate a
+# strong one — do NOT reuse a short/guessable value like a brand word.
+#   openssl rand -hex 32
+vault_websocket_token_issue_secret: "REPLACE_ME_WITH_openssl_rand_-hex_32"
+
+# nanobot serve (OpenAI-compatible API, port 8900) bearer key. Currently unset
+# in the reference config.json this project was built from — meaning that API
+# has NO authentication today. Set a real value here before ever exposing
+# port 8900 beyond loopback.
+#   openssl rand -hex 32
+vault_api_server_key: "REPLACE_ME_WITH_openssl_rand_-hex_32"

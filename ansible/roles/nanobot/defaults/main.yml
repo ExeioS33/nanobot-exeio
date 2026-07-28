@@ -1,0 +1,23 @@
+---
+# Role-local fallback defaults (lowest precedence — group_vars/all/vars.yml
+# overrides these in normal use). Kept here so the role doesn't break if used
+# standalone outside this playbook.
+nanobot_repo_url: "https://github.com/ExeioS33/nanobot-exeio.git"
+nanobot_repo_ref: "main"
+nanobot_deploy_dir: "/opt/nanobot"
+nanobot_data_dir: "/home/{{ ansible_user }}/.nanobot"
+nanobot_channels: "telegram"
+nanobot_model: "anthropic/claude-opus-4-5"
+nanobot_timezone: "UTC"
+nanobot_bot_name: "Exeio"
+nanobot_bot_icon: "👽"
+nanobot_telegram_enabled: true
+nanobot_telegram_allow_from: []
+# Which docker-compose.yml services to bring up. Add "nanobot-api" if you
+# want the OpenAI-compatible /v1 server (port 8900) running too — remember to
+# set vault_api_server_key first; that API has no auth key configured in the
+# reference config.json this project was built from.
+nanobot_services:
+  - nanobot-gateway
+nanobot_expose_webui_publicly: false
+nanobot_domain: ""

@@ -7,6 +7,12 @@
 .web
 .orion
 
+# Ansible deployment secrets — never commit the real vault or its password.
+# Only *.example templates are tracked; see ansible/README.md.
+ansible/group_vars/all/vault.yml
+ansible/.vault-pass
+ansible/*.retry
+
 # Claude / AI assistant artifacts
 docs/superpowers/
 docs/plans/

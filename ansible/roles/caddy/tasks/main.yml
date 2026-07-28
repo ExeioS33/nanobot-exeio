@@ -1,0 +1,49 @@
+---
+- name: Fail fast if this role is run without a domain configured
+  ansible.builtin.assert:
+    that:
+      - nanobot_domain is defined
+      - nanobot_domain | length > 0
+    fail_msg: >-
+      nanobot_domain is empty. Point a DNS A record at this host's IP and set
+      nanobot_domain in group_vars/all/vars.yml before enabling the caddy
+      role — see ansible/README.md.
+
+- name: Install prerequisite packages
+  ansible.builtin.apt:
+    name: [debian-keyring, debian-archive-keyring, apt-transport-https, curl, gnupg]
+    state: present
+    update_cache: true
+
+- name: Add Caddy's official GPG key
+  ansible.builtin.get_url:
+    url: "https://dl.cloudsmith.io/public/caddy/stable/gpg.key"
+    dest: /etc/apt/keyrings/caddy-stable.asc
+    mode: "0644"
+
+- name: Add the Caddy apt repository
+  ansible.builtin.apt_repository:
+    repo: >-
+      deb [signed-by=/etc/apt/keyrings/caddy-stable.asc]
+      https://dl.cloudsmith.io/public/caddy/stable/deb/debian any-version main
+    filename: caddy-stable
+    state: present
+
+- name: Install Caddy
+  ansible.builtin.apt:
+    name: caddy
+    state: present
+    update_cache: true
+
+- name: Template the Caddyfile
+  ansible.builtin.template:
+    src: Caddyfile.j2
+    dest: /etc/caddy/Caddyfile
+    mode: "0644"
+  notify: Reload caddy
+
+- name: Ensure Caddy is enabled and running
+  ansible.builtin.systemd:
+    name: caddy
+    state: started
+    enabled: true
