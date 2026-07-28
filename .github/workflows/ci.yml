@@ -2,11 +2,11 @@ name: Test Suite
 
 on:
   push:
-    branches: [main]
+    branches: [main, dev]
     paths-ignore:
       - docs/**
   pull_request:
-    branches: [main]
+    branches: [main, dev]
     paths-ignore:
       - docs/**
 
