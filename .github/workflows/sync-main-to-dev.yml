@@ -1,0 +1,192 @@
+name: Sync main into dev
+
+# main is a near-pure mirror of upstream HKUDS/nanobot (see sync-upstream.yml).
+# dev is the actual Exeio product branch: main's history plus the Exeio
+# rebrand (webui/**, nanobot/channels/*/webui/**) and deployment tooling
+# (deployment/**, which includes the ansible IaC). This workflow brings
+# main's updates into dev while protecting those dev-owned paths — restored
+# to dev's version on every run regardless of what the incoming merge did
+# to them.
+#
+# Runs right after main moves (push trigger) so dev never falls more than
+# one sync behind.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: sync-main-to-dev
+  cancel-in-progress: false
+
+env:
+  SYNC_LABEL: sync-main-to-dev
+  BOT_NAME: "github-actions[bot]"
+  BOT_EMAIL: "41898282+github-actions[bot]@users.noreply.github.com"
+  DEV_OWNED_PATHS: "webui/ deployment/"
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure git identity
+        run: |
+          git config user.name "$BOT_NAME"
+          git config user.email "$BOT_EMAIL"
+
+      - name: Ensure the sync label exists
+        run: gh label create "$SYNC_LABEL" --color C5DEF5 --description "Automated main-into-dev sync PR" --force
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Bail out if a sync PR is already open
+        id: existing
+        run: |
+          count="$(gh pr list --label "$SYNC_LABEL" --state open --json number --jq 'length')"
+          echo "count=$count" >> "$GITHUB_OUTPUT"
+          if [ "$count" != "0" ]; then
+            echo "::notice::An open main->dev sync PR already exists — skipping this run so we don't pile up duplicates."
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Fetch dev
+        if: steps.existing.outputs.count == '0'
+        run: git fetch origin dev
+
+      - name: Check for drift
+        id: drift
+        if: steps.existing.outputs.count == '0'
+        run: |
+          new_commits="$(git rev-list origin/dev..origin/main --count)"
+          echo "new_commits=$new_commits" >> "$GITHUB_OUTPUT"
+          echo "main is $new_commits commit(s) ahead of dev."
+
+      - name: Detect new channel webui bundles with no dev counterpart
+        id: newchannels
+        if: steps.existing.outputs.count == '0' && steps.drift.outputs.new_commits != '0'
+        run: |
+          ours="$(git ls-tree -d --name-only origin/dev -- 'nanobot/channels/' | xargs -I{} basename {} | sort)"
+          theirs="$(git ls-tree -d --name-only origin/main -- 'nanobot/channels/' | xargs -I{} basename {} | sort)"
+          new="$(comm -13 <(echo "$ours") <(echo "$theirs") || true)"
+          {
+            echo "new_channels<<EOF"
+            echo "$new"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+          if [ -n "$new" ]; then
+            echo "::warning::main added channel(s) with no dev counterpart: $new"
+          fi
+
+      - name: Create sync branch, merge, restore Exeio-owned paths
+        id: merge
+        if: steps.existing.outputs.count == '0' && steps.drift.outputs.new_commits != '0'
+        run: |
+          branch="sync/main-to-dev-$(date -u +%Y-%m-%d)"
+          echo "branch=$branch" >> "$GITHUB_OUTPUT"
+          git checkout -b "$branch" origin/dev
+
+          # Merge everything from main first — including webui/deployment paths,
+          # which we deliberately undo next. --no-commit so we can amend the
+          # tree before it becomes a real commit.
+          if ! git merge --no-commit --no-ff origin/main; then
+            echo "has_conflicts=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_conflicts=false" >> "$GITHUB_OUTPUT"
+          fi
+
+          # Restore dev-owned paths to dev's version regardless of whether
+          # the merge conflicted on them or silently took main's — this is a
+          # hard exclusion, not "prefer ours on conflict".
+          # shellcheck disable=SC2086
+          git checkout origin/dev -- $DEV_OWNED_PATHS ':(glob)nanobot/channels/*/webui/' 2>/dev/null || true
+
+          git add -A
+          git commit -m "sync: merge main into dev (webui/**, deployment/** preserved as dev's)" || true
+
+      - name: Categorize the resulting diff (docs-only vs core)
+        id: scope
+        if: steps.existing.outputs.count == '0' && steps.drift.outputs.new_commits != '0'
+        run: |
+          changed="$(git diff --name-only origin/dev..HEAD)"
+          non_docs="$(grep -vE '^docs/' <<< "$changed")"
+          if [ -z "$changed" ]; then
+            echo "scope=empty" >> "$GITHUB_OUTPUT"
+          elif [ -z "$non_docs" ]; then
+            echo "scope=docs-only" >> "$GITHUB_OUTPUT"
+          else
+            echo "scope=core" >> "$GITHUB_OUTPUT"
+          fi
+          echo "$changed"
+
+      - name: Push sync branch
+        if: >-
+          steps.existing.outputs.count == '0' && steps.drift.outputs.new_commits != '0'
+          && steps.scope.outputs.scope != 'empty'
+        run: git push origin "${{ steps.merge.outputs.branch }}"
+
+      - name: Open the sync PR
+        id: pr
+        if: >-
+          steps.existing.outputs.count == '0' && steps.drift.outputs.new_commits != '0'
+          && steps.scope.outputs.scope != 'empty'
+        run: |
+          scope="${{ steps.scope.outputs.scope }}"
+          new_channels="${{ steps.newchannels.outputs.new_channels }}"
+          conflicts="${{ steps.merge.outputs.has_conflicts }}"
+
+          title="sync: merge main into dev ($scope)"
+          body="Automated merge of \`main\` into \`dev\` — \`webui/**\`, \`deployment/**\` and \`nanobot/channels/*/webui/**\` are excluded and restored to dev's own version, regardless of what main changed there.
+
+          **Scope detected:** \`$scope\`
+          **Merge conflicts on non-excluded paths:** \`$conflicts\`"
+
+          if [ -n "$new_channels" ]; then
+            body="$body
+
+          > [!WARNING]
+          > main added a channel with no local \`nanobot/channels/*/webui/\` counterpart on dev yet: **$new_channels**. Its webui bundle came through un-rebranded (there was nothing local to restore it to). Needs a manual one-time rebrand pass before this is safe to merge."
+          fi
+
+          if [ "$conflicts" = "true" ]; then
+            body="$body
+
+          > [!CAUTION]
+          > The merge had conflicts outside the excluded paths — likely main and dev both touched the same webui file (e.g. upstream changed something Exeio also rebranded). Resolve on the \`${{ steps.merge.outputs.branch }}\` branch, keeping Exeio's branding while folding in main's underlying change."
+          fi
+
+          pr_url="$(gh pr create \
+            --base dev \
+            --head "${{ steps.merge.outputs.branch }}" \
+            --title "$title" \
+            --body "$body" \
+            --label "$SYNC_LABEL")"
+          echo "url=$pr_url" >> "$GITHUB_OUTPUT"
+
+          # Hard rule: a new-channel warning always forces manual review,
+          # even on an otherwise docs-only-shaped diff.
+          if [ "$scope" = "docs-only" ] && [ -z "$new_channels" ] && [ "$conflicts" != "true" ]; then
+            echo "auto_merge=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "auto_merge=false" >> "$GITHUB_OUTPUT"
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Enable auto-merge for docs-only PRs
+        if: steps.pr.outputs.auto_merge == 'true'
+        run: gh pr merge --auto --merge "${{ steps.pr.outputs.url }}"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
