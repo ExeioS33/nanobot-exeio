@@ -4,7 +4,7 @@
 
 # --- Source ---
 nanobot_repo_url: "https://github.com/ExeioS33/nanobot-exeio.git"
-nanobot_repo_ref: "main"                # branch/tag to deploy
+nanobot_repo_ref: "dev"                 # branch/tag to deploy — dev carries the Exeio product (rebrand + this ansible tree), main is upstream-only
 nanobot_deploy_dir: "/opt/nanobot"      # where the repo is checked out on the VPS
 
 # --- Data dir (bind-mounted into the container as /home/nanobot/.nanobot) ---

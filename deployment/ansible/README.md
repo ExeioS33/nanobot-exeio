@@ -33,7 +33,7 @@ same playbook against a second VPS reproduces an identical instance.
 ## Structure
 
 ```
-ansible/
+deployment/ansible/
 ├── ansible.cfg
 ├── requirements.yml              # community.docker, community.general
 ├── site.yml                      # top-level playbook
@@ -52,7 +52,7 @@ ansible/
 
 ```bash
 uv tool install ansible-core        # or: pip install --user ansible-core
-cd ansible
+cd deployment/ansible
 ansible-galaxy collection install -r requirements.yml
 ```
 
