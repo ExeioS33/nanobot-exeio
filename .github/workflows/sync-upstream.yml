@@ -1,0 +1,154 @@
+name: Sync upstream (HKUDS/nanobot)
+
+# Keeps `main` a near-pure mirror of the real upstream project (docs auto-merge,
+# everything else needs review before merging). `main` carries no Exeio-specific
+# branding of its own — that lives on `dev`, which merges `main` in separately
+# (see sync-main-to-dev.yml) and is where webui/** and
+# nanobot/channels/*/webui/** get protected from upstream changes.
+
+on:
+  schedule:
+    - cron: "0 6 * * 1" # weekly, Monday 06:00 UTC
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: sync-upstream
+  cancel-in-progress: false
+
+env:
+  UPSTREAM_URL: https://github.com/HKUDS/nanobot.git
+  SYNC_LABEL: sync-upstream
+  BOT_NAME: "github-actions[bot]"
+  BOT_EMAIL: "41898282+github-actions[bot]@users.noreply.github.com"
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure git identity
+        run: |
+          git config user.name "$BOT_NAME"
+          git config user.email "$BOT_EMAIL"
+
+      - name: Ensure the sync label exists
+        run: gh label create "$SYNC_LABEL" --color BFD4F2 --description "Automated upstream sync PR" --force
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Bail out if a sync PR is already open
+        id: existing
+        run: |
+          count="$(gh pr list --label "$SYNC_LABEL" --state open --json number --jq 'length')"
+          echo "count=$count" >> "$GITHUB_OUTPUT"
+          if [ "$count" != "0" ]; then
+            echo "::notice::An open sync PR already exists — skipping this run so we don't pile up duplicates."
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Fetch upstream
+        if: steps.existing.outputs.count == '0'
+        run: |
+          git remote add upstream "$UPSTREAM_URL"
+          git fetch upstream main
+
+      - name: Check for new upstream commits
+        id: drift
+        if: steps.existing.outputs.count == '0'
+        run: |
+          new_commits="$(git rev-list origin/main..upstream/main --count)"
+          echo "new_commits=$new_commits" >> "$GITHUB_OUTPUT"
+          echo "Upstream is $new_commits commit(s) ahead."
+
+      - name: Create sync branch and merge upstream
+        id: merge
+        if: steps.existing.outputs.count == '0' && steps.drift.outputs.new_commits != '0'
+        run: |
+          branch="sync/upstream-$(date -u +%Y-%m-%d)"
+          echo "branch=$branch" >> "$GITHUB_OUTPUT"
+          git checkout -b "$branch" origin/main
+
+          if ! git merge --no-commit --no-ff upstream/main; then
+            echo "has_conflicts=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_conflicts=false" >> "$GITHUB_OUTPUT"
+          fi
+
+          git add -A
+          git commit -m "sync: merge upstream/main" || true
+
+      - name: Categorize the resulting diff (docs-only vs core)
+        id: scope
+        if: steps.existing.outputs.count == '0' && steps.drift.outputs.new_commits != '0'
+        run: |
+          changed="$(git diff --name-only origin/main..HEAD)"
+          non_docs="$(grep -vE '^docs/' <<< "$changed")"
+          if [ -z "$changed" ]; then
+            echo "scope=empty" >> "$GITHUB_OUTPUT"
+          elif [ -z "$non_docs" ]; then
+            echo "scope=docs-only" >> "$GITHUB_OUTPUT"
+          else
+            echo "scope=core" >> "$GITHUB_OUTPUT"
+          fi
+          echo "$changed"
+
+      - name: Push sync branch
+        if: >-
+          steps.existing.outputs.count == '0' && steps.drift.outputs.new_commits != '0'
+          && steps.scope.outputs.scope != 'empty'
+        run: git push origin "${{ steps.merge.outputs.branch }}"
+
+      - name: Open the sync PR
+        id: pr
+        if: >-
+          steps.existing.outputs.count == '0' && steps.drift.outputs.new_commits != '0'
+          && steps.scope.outputs.scope != 'empty'
+        run: |
+          scope="${{ steps.scope.outputs.scope }}"
+          conflicts="${{ steps.merge.outputs.has_conflicts }}"
+
+          title="sync: pull upstream/main ($scope)"
+          body="Automated sync from [HKUDS/nanobot](https://github.com/HKUDS/nanobot) into \`main\`. Once merged, follow up by merging \`main\` into \`dev\` (see sync-main-to-dev.yml) to bring it into the Exeio product branch.
+
+          **Scope detected:** \`$scope\`
+          **Merge conflicts:** \`$conflicts\`"
+
+          if [ "$conflicts" = "true" ]; then
+            body="$body
+
+          > [!CAUTION]
+          > The merge had conflicts. Resolve them on the \`${{ steps.merge.outputs.branch }}\` branch before merging."
+          fi
+
+          pr_url="$(gh pr create \
+            --base main \
+            --head "${{ steps.merge.outputs.branch }}" \
+            --title "$title" \
+            --body "$body" \
+            --label "$SYNC_LABEL")"
+          echo "url=$pr_url" >> "$GITHUB_OUTPUT"
+
+          if [ "$scope" = "docs-only" ] && [ "$conflicts" != "true" ]; then
+            echo "auto_merge=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "auto_merge=false" >> "$GITHUB_OUTPUT"
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Enable auto-merge for docs-only PRs
+        if: steps.pr.outputs.auto_merge == 'true'
+        run: gh pr merge --auto --merge "${{ steps.pr.outputs.url }}"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
